@@ -18,3 +18,17 @@ def get_file_content(working_directory, file_path):
         return file_content_string
     except Exception as e:
         return f"Error: Cannot read file: {e}"
+
+schema_get_files_info = types.FunctionDeclaration(
+    name="get_files_content",
+    description="Reads the contents of a given file within the working directory.",
+    parameters=types.Schema(
+        type=types.Type.OBJECT,
+        properties={
+            "file_path": types.Schema(
+                type=types.Type.STRING,
+                description="The file path to read content from, relative to the working directory.",
+            ),
+        },
+    ),
+)
