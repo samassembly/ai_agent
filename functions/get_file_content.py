@@ -1,4 +1,5 @@
 import os
+from google.genai import types
 
 def get_file_content(working_directory, file_path):
     abs_working_dir = os.path.abspath(working_directory)
@@ -19,8 +20,8 @@ def get_file_content(working_directory, file_path):
     except Exception as e:
         return f"Error: Cannot read file: {e}"
 
-schema_get_files_info = types.FunctionDeclaration(
-    name="get_files_content",
+schema_get_file_content = types.FunctionDeclaration(
+    name="get_file_content",
     description="Reads the contents of a given file within the working directory.",
     parameters=types.Schema(
         type=types.Type.OBJECT,

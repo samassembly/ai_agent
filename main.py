@@ -4,6 +4,9 @@ from dotenv import load_dotenv
 from google import genai
 from google.genai import types
 from functions.get_files_info import schema_get_files_info
+from functions.get_file_content import schema_get_file_content
+from functions.run_python import schema_run_python_file
+from functions.write_file import schema_write_file
 
 def main():
     #Check for prompt argument
@@ -31,16 +34,13 @@ def main():
     """
 
     model_name = 'gemini-2.0-flash-001'
+    
     available_functions = types.Tool(
-        function_declarations=[
-            schema_get_files_info,
-            schema_get_file_content,
-            schema_run_python_file,
-            schema_write_file,
-        ]
+        function_declarations=[schema_get_files_info, schema_get_file_content, schema_run_python_file, schema_write_file]
     )
 
     response = client.models.generate_content(model=model_name, contents=messages, config=types.GenerateContentConfig(tools=[available_functions], system_instruction=system_prompt),)
+
     prompt_tokens = response.usage_metadata.prompt_token_count
     response_tokens = response.usage_metadata.candidates_token_count
     function_call_part = response.function_calls[0]
