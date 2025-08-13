@@ -35,25 +35,37 @@ def main():
     """
 
     model_name = 'gemini-2.0-flash-001'
-    
     available_functions = types.Tool(
         function_declarations=[schema_get_files_info, schema_get_file_content, schema_run_python_file, schema_write_file]
     )
 
-    response = client.models.generate_content(model=model_name, contents=messages, config=types.GenerateContentConfig(tools=[available_functions], system_instruction=system_prompt),)
+    #Calling generate content model loop
+    
+    for i in range(20):
+        try: 
+            response = client.models.generate_content(model=model_name, contents=messages, config=types.GenerateContentConfig(tools=[available_functions], system_instruction=system_prompt),)
+        except google.genai.errors.ClientError as e:
+            print(f"An error has occurred: {e}")
 
-    prompt_tokens = response.usage_metadata.prompt_token_count
-    response_tokens = response.usage_metadata.candidates_token_count
-    function_call_part = response.function_calls[0]
+        if response.text:
+            print(response.text)
+            break #response found, break out of loop
+        prompt_tokens = response.usage_metadata.prompt_token_count
+        response_tokens = response.usage_metadata.candidates_token_count
+        function_call_part = response.function_calls[0]
+        response_candidates = response.candidates
+        #Loop candidates and append to messages list
+        for candidate in response_candidates:
+            messages.append(candidate.content)
+        #convert function_responses into a message with role of user
 
-
+    
     #Check for verbose
     if '--verbose' in sys.argv:
         print(f"User prompt: {user_prompt}")
         print(f"Prompt tokens: {prompt_tokens}")
         print(f"Response tokens: {response_tokens}")
     if function_call_part:
-        #print(function_call_part)
         function_call_result = call_function(function_call_part)
         print(f"-> {function_call_result.parts[0].function_response.response}")
     else:
